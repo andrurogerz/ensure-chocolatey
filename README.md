@@ -13,7 +13,7 @@ runners.
 Inputs
 ------
 
-- 'install-script': URL for the Chocolatey PowerShell installer script (default `https://community.chocolatey.org/install.ps1`).
+- `install-script`: URL for the Chocolatey PowerShell installer script (default `https://community.chocolatey.org/install.ps1`).
 
 License
 -------
