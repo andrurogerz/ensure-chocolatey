@@ -1,0 +1,29 @@
+name: "Ensure Chocolatey"
+description: "Install the Windows Chocolatey package manager if not already installed"
+
+inputs:
+  install-script:
+    description: URL for the Chocolatey PowerShell installer script.
+    required: false
+    default: "https://community.chocolatey.org/install.ps1"
+
+runs:
+  using: composite
+  steps:
+    - name: Check for Windows OS
+      if: runner.os != 'Windows'
+      shell: pwsh
+      run: |
+        echo "::error ${{ runner.os }} is not suppored."
+        exit 1
+
+    - name: Install
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+          if (-not $env:ChocolateyInstall -or -not (Test-Path "$env:ChocolateyInstall")) {
+            Invoke-Expression ((New-Object net.webclient).DownloadString("${{ inputs.install-script }}"))
+            choco feature enable -n allowGlobalConfirmation
+            # Propagate the updated path to subsequent steps in the current job.
+            echo "$env:ChocolateyInstall\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
