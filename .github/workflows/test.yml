@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  windows:
+    # Chocolatey is pre-installed on the windows-latest GitHub runner.
+    runs-on: windows-latest
+
+    steps:
+      # Run with Chocolatey already installed to verify noop behavior.
+      - uses: andrurogerz/ensure-chocolatey@main
+
+      # For now, just remove the entire install directory. There's no value in
+      # updating the environment or path because changes do not propagate to
+      # subsequent steps. Removing the path is sufficient to trigger the action
+      # to reinstall.
+      - name: Remove existing Chocolatey install
+        run: Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
+        shell: pwsh
+
+      # Run again after uninstall to verify install behavior.
+      - uses: andrurogerz/ensure-chocolatey@main
+
+      # Install a pacakge to make sure it is working. This is the same package
+      # installed by the Chocolatey setup PowerShell script at
+      # https://github.com/chocolatey/choco/blob/develop/setup.ps1
+      - name: Test install package
+        run: choco install pester -version 2.0.2
